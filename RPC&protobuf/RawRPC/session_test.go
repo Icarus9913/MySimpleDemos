@@ -1,4 +1,4 @@
-package rpc
+package RawRPC
 
 import (
 	"fmt"
@@ -44,7 +44,7 @@ func TestSession_ReadWrite(t *testing.T) {
 		if nil!=err{
 			t.Fatal(err)
 		}
-		s:=Session{conn: conn}
+		s:= Session{conn: conn}
 		//读数据
 		data,err:=s.Read()
 		if nil!=err{

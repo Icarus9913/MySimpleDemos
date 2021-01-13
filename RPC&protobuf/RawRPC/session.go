@@ -1,4 +1,4 @@
-package rpc
+package RawRPC
 
 import (
 	"encoding/binary"
@@ -14,7 +14,7 @@ type Session struct{
 }
 
 //创建新链接
-func NewSession(conn net.Conn) *Session  {
+func NewSession(conn net.Conn) *Session {
 	return &Session{conn: conn}
 }
 

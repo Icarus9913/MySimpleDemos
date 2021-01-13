@@ -1,4 +1,4 @@
-package rpc
+package RawRPC
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ type Server struct {
 }
 
 //创建服务端对象
-func NewServer(addr string) *Server  {
+func NewServer(addr string) *Server {
 	return &Server{addr: addr,funcs: make(map[string]reflect.Value)}
 }
 
@@ -77,9 +77,9 @@ func (s *Server)Run()  {
 			outArgs=append(outArgs,o.Interface())
 		}
 		//包装数据，返回给客户端
-		respRPCData:=RPCData{rpcData.Name,outArgs}
+		respRPCData:= RPCData{rpcData.Name,outArgs}
 		//编码
-		respBytes,err:=encode(respRPCData)
+		respBytes,err:= encode(respRPCData)
 		if nil!=err{
 			fmt.Printf("encode err:%v\n",err)
 			return

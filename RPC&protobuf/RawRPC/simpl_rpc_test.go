@@ -1,4 +1,4 @@
-package rpc
+package RawRPC
 
 import (
 	"encoding/gob"
@@ -19,9 +19,9 @@ type User struct {
 //用于测试的查询用户的方法
 func queryUser(uid int)(User,error)  {
 	user:=make(map[int]User)
-	user[0]=User{"zs",20}
-	user[1]=User{"ls",21}
-	user[2]=User{"ww",22}
+	user[0]= User{"zs",20}
+	user[1]= User{"ls",21}
+	user[2]= User{"ww",22}
 	//模拟查询用户
 	if u,ok:=user[uid];ok{
 		return u,nil
@@ -35,9 +35,9 @@ func TestRPC(t *testing.T)  {
 	gob.Register(User{})
 	addr := "127.0.0.1:8080"
 	//创建服务端
-	srv:=NewServer(addr)
+	srv:= NewServer(addr)
 	//将方法注册到服务端
-	srv.Register("queryUser",queryUser)
+	srv.Register("queryUser", queryUser)
 	//服务端等待调用
 	go srv.Run()
 	time.Sleep(1*time.Second)

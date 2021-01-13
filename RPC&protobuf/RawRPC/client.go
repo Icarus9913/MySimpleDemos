@@ -1,4 +1,4 @@
-package rpc
+package RawRPC
 
 import (
 	"net"
@@ -11,7 +11,7 @@ type Client struct {
 }
 
 //创建客户端对象
-func NewClient(conn net.Conn) *Client{
+func NewClient(conn net.Conn) *Client {
 	return &Client{conn: conn}
 }
 
@@ -36,10 +36,10 @@ func (c *Client)callRPC(rpcName string, fPtr interface{})  {
 	 		inArgs=append(inArgs,args.Interface())
 		}
 		//创建连接
-		cliSession:=NewSession(c.conn)
+		cliSession:= NewSession(c.conn)
 		//编码数据
-		reqRPC:=RPCData{Name: rpcName,Args: inArgs}
-		b,err:=encode(reqRPC)
+		reqRPC:= RPCData{Name: rpcName,Args: inArgs}
+		b,err:= encode(reqRPC)
 		if nil!=err{
 			panic(err)
 		}
