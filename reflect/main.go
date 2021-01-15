@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-
 	shit()
+
 }
 
 func myKind() {
@@ -62,35 +62,48 @@ func myMakeFunc() {
 	}
 
 	var makeSwap = func(fptr interface{}) {
-		var valueOf reflect.Value = reflect.Indirect(reflect.ValueOf(fptr))
-		var v reflect.Value = reflect.MakeFunc(valueOf.Type(),swap)
-		valueOf.Set(v)
+		var valueOf reflect.Value = reflect.Indirect(reflect.ValueOf(fptr))		//注意此处赋值了一个指针变量
+		var v reflect.Value = reflect.MakeFunc(valueOf.Type(),swap)				//这里造了一个函数
+		valueOf.Set(v)															//将v赋值给本身
 
-		fmt.Println(&valueOf)	//<func(int, int) (int, int) Value>  其中valueof与v的地址相同
+		fmt.Println(&valueOf)	//<func(int, int) (int, int) Value>
 		fmt.Println(&v)			//<func(int, int) (int, int) Value>
+								//如果这个地方不加取址符,则此处打印的是上面给valueof赋的值
+
+		//fmt.Println((&v).Kind())
 	}
 
 	var intSwap func(int,int) (int,int)
+
 	makeSwap(&intSwap)
 	fmt.Println(intSwap(1,2))	//2 1
 }
 
+
+//自己造的轮子,造一个两个参数相加的func,
+//仔细从头读到尾就能看懂
 func shit()  {
 	type invoker func(i,j int) int
-	a := (invoker)(nil)
-	b := (invoker)(nil,nil)
 
-	fmt.Println(reflect.TypeOf(a))			//main.invoker
-	fmt.Println(reflect.TypeOf(a).Kind())	//func
+	var helloa func(i,j int) int
+	a := (invoker)(helloa)			//这里是将某个变量(如nil),强转成invoker类型
+	reflect.TypeOf(a)				//main.invoker
+	reflect.TypeOf(a).Kind()		//func
 
-/*	makeFunc := reflect.MakeFunc(reflect.TypeOf((invoker)(nil)),
+	makeFunc := reflect.MakeFunc(reflect.TypeOf(a),
 		func(args []reflect.Value) (results []reflect.Value) {
+			a := args[0].Interface().(int)
+			b := args[1].Interface().(int)
+			c := a+b
 
-			fmt.Println("打印一下", args[0])
-		return []reflect.Value{args[1]}
-	})*/
+			val := reflect.ValueOf(c)
 
+			return []reflect.Value{val}
+	}).Interface().(invoker)			//注意此处!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+	var haha invoker
 
+	haha = makeFunc
+
+	fmt.Println(haha(1,2))
 }
-

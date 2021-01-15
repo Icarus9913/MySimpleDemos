@@ -12,7 +12,7 @@ func main() {
 
 	// 通过reflect.ValueOf获取num中的reflect.Value，注意，参数必须是指针才能修改其值
 	pointer := reflect.ValueOf(&num)
-	newValue := pointer.Elem()						// It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
+	newValue := pointer.Elem()							// It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
 
 	fmt.Println("type of pointer:", newValue.Type())			//type of pointer: float64
 	fmt.Println("settability of pointer:", newValue.CanSet())	//settability of pointer: true
