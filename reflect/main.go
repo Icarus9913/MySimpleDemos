@@ -7,10 +7,7 @@ import (
 
 func main() {
 
-	/*	reflect.MakeFunc(typeof, func(args []reflect.Value) (results []reflect.Value) {
-
-		})*/
-
+	shit()
 }
 
 func myKind() {
@@ -60,7 +57,7 @@ func myFuncOf() {
 */
 func myMakeFunc() {
 	var swap = func(in []reflect.Value) []reflect.Value {
-		fmt.Println(in[0].Interface(),in[1].Interface())	//1 2
+		fmt.Println("交换前:",in[0].Interface(),in[1].Interface())	//1 2
 		return []reflect.Value{in[1],in[0]}
 	}
 
@@ -69,14 +66,31 @@ func myMakeFunc() {
 		var v reflect.Value = reflect.MakeFunc(valueOf.Type(),swap)
 		valueOf.Set(v)
 
-		fmt.Println(valueOf)	//<func(int, int) (int, int) Value>
-		fmt.Println(v)			//<func(int, int) (int, int) Value>
+		fmt.Println(&valueOf)	//<func(int, int) (int, int) Value>  其中valueof与v的地址相同
+		fmt.Println(&v)			//<func(int, int) (int, int) Value>
 	}
 
 	var intSwap func(int,int) (int,int)
 	makeSwap(&intSwap)
 	fmt.Println(intSwap(1,2))	//2 1
-
 }
 
+func shit()  {
+	type invoker func(i,j int) int
+	a := (invoker)(nil)
+	b := (invoker)(nil,nil)
+
+	fmt.Println(reflect.TypeOf(a))			//main.invoker
+	fmt.Println(reflect.TypeOf(a).Kind())	//func
+
+/*	makeFunc := reflect.MakeFunc(reflect.TypeOf((invoker)(nil)),
+		func(args []reflect.Value) (results []reflect.Value) {
+
+			fmt.Println("打印一下", args[0])
+		return []reflect.Value{args[1]}
+	})*/
+
+
+
+}
 
