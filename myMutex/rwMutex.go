@@ -55,7 +55,7 @@ func main()  {
 	var waitGroup sync.WaitGroup
 	fmt.Println("Pass:", showFunction(&Password),"\n")
 
-	for i:=0;i<1;i++{
+	for i:=0;i<15;i++{
 		waitGroup.Add(1)
 		go func() {
 			defer waitGroup.Done()
