@@ -26,5 +26,4 @@ func main()  {
 		panic("read occur error: "+err.Error())
 	}
 	fmt.Printf("the result is %s \n",string(bs))
-
 }
