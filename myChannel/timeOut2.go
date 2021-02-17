@@ -57,3 +57,25 @@ func main() {
 		fmt.Println("OK!")
 	}
 }
+
+func test() {
+
+	//每隔一段时间触发一次
+	ticker := time.NewTicker(time.Second * 1)
+	go func() {
+		for{
+			<-ticker.C
+			fmt.Println("ticker")
+		}
+	}()
+
+	//只会触发一次
+	timer := time.NewTimer(time.Second * 2)
+	go func() {
+		for{
+			<-timer.C
+			fmt.Println("timer")
+		}
+	}()
+	time.Sleep(time.Second * 20)
+}
