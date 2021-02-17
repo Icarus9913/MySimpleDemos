@@ -25,7 +25,7 @@ func main() {
 	select {
 	case <-timer.C:
 		fmt.Fprintln(os.Stderr, "Timeout! Not Found!")
-		cancel()	//执行后ctx直接Done了
+		cancel()				//执行后ctx直接Done了
 	case <-resultChan:
 		fmt.Fprintf(os.Stdout, "Found it!\n")
 		cancel()
