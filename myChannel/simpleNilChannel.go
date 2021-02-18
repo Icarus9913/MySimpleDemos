@@ -24,11 +24,6 @@ func main() {
 	}
 }
 
-func myWrite(abc chan int)  {
-
-}
-
-
 func mySend(abc chan int) {
 	abc <- rand.Intn(10)
 }
