@@ -1,4 +1,4 @@
-## Let's talk some shits with Channel!
+## Let's talk about some shits with Channel!
 
 如果chan没有缓冲,所以发送的地方只有在有目标接收的时候才能发出
 
