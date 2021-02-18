@@ -38,8 +38,8 @@ func main() {
 
 	// 4.将消息发布到声明的队列
 	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
+		"",     // exchange	交换器,此时为默认/无名
+		q.Name, // routing key			消息将以`route_key`参数指定的名称路由到队列
 		false,  // mandatory
 		false,  // immediate
 		amqp.Publishing{
