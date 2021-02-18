@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 const (
 	SHIFT     = 5
 	NODE_SIZE = (1 << SHIFT)  //0001 -> 0010 0000=2^5=32
@@ -101,5 +103,10 @@ func New() List {
 }
 
 func main() {
-
+	list := New()
+	list.PushBack(1)
+	list.PushBack(2)
+	list.PushBack(3)
+	i := list.Len()
+	fmt.Println(i)
 }

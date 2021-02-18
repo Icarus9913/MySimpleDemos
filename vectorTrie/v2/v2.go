@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 const (
 	SHIFT     = 5
 	NODE_SIZE = (1 << SHIFT)  //0001 -> 0010 0000=2^5=32
@@ -188,11 +190,11 @@ func (head *listHead) RemoveBack() interface{} {
 }
 
 func (head listHead) Len() int {
-	panic("implement me")
+	return head.len
 }
 
 func New() List {
-	return &listHead{0, 0, nil, 0, nil}
+	return &listHead{len: 0, level: 0, root: nil, offset: 0, tail: nil}
 }
 
 func getTail(root *trieNode, n int, level int) (*trieNode, *trieNode) {
@@ -210,13 +212,18 @@ func getTail(root *trieNode, n int, level int) (*trieNode, *trieNode) {
 			return root, tail
 		}
 	}
-
 }
 
 func main() {
 	list := New()
-	var v interface{}
-	for i := 0; i < 100000000; i++ {
-		list.PushBack(v)
-	}
+	list.PushBack(1)
+	list.PushBack(2)
+	list.PushBack(3)
+	list.PushBack(4)
+	list.PushBack(5)
+	list.PushBack(6)
+	list.PushBack(7)
+
+	fmt.Println(list)
+
 }
