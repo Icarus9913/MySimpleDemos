@@ -16,9 +16,8 @@ func main() {
 
 	// 获取channel
 	ch, err := conn.Channel()
-	//failOnError(err, "Failed to open a channel")
 	if nil!=err{
-		panic(err)
+		panic("Failed to open a channel: "+err.Error())
 	}
 	defer ch.Close()
 
