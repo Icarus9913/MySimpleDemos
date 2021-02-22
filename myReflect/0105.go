@@ -5,10 +5,10 @@ import (
 	"reflect"
 )
 
-type Actor struct {}
+type Actor struct{}
 
-type User struct {
-	ID int
+type Account struct {
+	ID   int
 	Name string
 }
 
@@ -16,62 +16,54 @@ type Student struct {
 	Age int
 }
 
-type invokeFunc func(u User)
+type invokeFunc func(ac Account)
 
-func (a Actor)PrintID(u User) int {
-	fmt.Println("打印user的ID,",u.ID)
-	return u.ID
+func (a Actor) PrintID(ac Account) int {
+	fmt.Println("打印account的ID,", ac.ID)
+	return ac.ID
 }
 
-func (a Actor)PrintName(u User) string {
-	fmt.Println("打印user的Name,",u.Name)
-	return u.Name
+func (a Actor) PrintName(ac Account) string {
+	fmt.Println("打印account的Name,", ac.Name)
+	return ac.Name
 }
 
-
-
-
-func (a Actor)Exports() []interface{} {
+func (a Actor) Exports() []interface{} {
 	return []interface{}{
 		1: a.PrintID,
 		2: a.PrintName,
 	}
 }
 
-
-func main()  {
-	/*	user := User{
-		ID: 1,
-		Name: "小李",
-	}
-	value := reflect.ValueOf(user)
-	check := value.MethodByName("PrintID")
-	args := make([]reflect.Value,0)
-	check.Call(args)*/
+func main() {
+	/*	account := Account{
+			ID: 1,
+			Name: "小李",
+		}
+		value := reflect.ValueOf(account)
+		check := value.MethodByName("PrintID")
+		args := make([]reflect.Value,0)
+		check.Call(args)*/
 
 	var a Actor
 	exports := a.Exports()
-	for _, m := range exports{
+	for _, m := range exports {
 		//忽略掉数组0,因为数组0对应的元素为空
-		if nil==m{
+		if nil == m {
 			continue
 		}
 
 		meth := reflect.ValueOf(m)
-		_ = meth.Type()		//输出对应的类型及返回值,例如:func(main.User) string
-		_ = reflect.TypeOf(m)		///输出对应的类型及返回值,例如:func(main.User) int
+		_ = meth.Type()       //输出对应的类型及返回值,例如:func(main.Account) string
+		_ = reflect.TypeOf(m) ///输出对应的类型及返回值,例如:func(main.Account) int
 
-
-
-		//u := param.Interface().(*int)
+		//ac := param.Interface().(*int)
 
 		meth.Call([]reflect.Value{
-			reflect.ValueOf(User{
+			reflect.ValueOf(Account{
 				2,
 				"abc",
 			}),
-
 		})
-
 	}
 }
