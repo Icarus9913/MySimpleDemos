@@ -1,0 +1,10 @@
+my.Test:
+ title: Hello
+ category: nothing
+ tag:
+  - OOP
+  - Golang
+
+
+# ?+:表示一种组合,其中?后跟的是key, :后跟着是value.  可以理解为{k1:v1; k2:v2}
+# -开头的行表示构成一个数组
