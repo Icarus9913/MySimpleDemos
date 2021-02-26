@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ch := make(chan []byte, 10)
+	ch := make(chan []byte,10)
 	go func() {
 		for {
 			select {
@@ -21,7 +21,7 @@ func main() {
 	ch <- data
 
 	data = data[:0]
-
+	//time.Sleep(time.Second)
 	data = append(data, []byte("aaa")...)
 	ch <- data
 	time.Sleep(time.Second * 2)
@@ -36,6 +36,8 @@ func main() {
 	data = data[:0]把data清空,data又append(aaa),表示从头开始存入.
 	接着print执行了,第一次打印结果就是aaabbbbbbbb
 	第二次从channel拿到data的时候,已经变成aaa了
+
+	ch := make(chan []byte,10)  或者把这里的缓冲给去掉,不要缓冲.此时就会读一个写一个,阻塞的读.
 */
 
 
