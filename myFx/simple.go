@@ -18,7 +18,7 @@ func NewFxDemo() FxDemo {
 
 func main() {
 	//使用Provide将具体反射的类型添加到container中,可以按需添加任意多个构造函数
-	//fx.Provide(NewFxDemo())
+	//fx.Provide(NewFxDemo)
 
 	//使用Populate完成变量与具体类型间的映射
 	var fxd FxDemo
