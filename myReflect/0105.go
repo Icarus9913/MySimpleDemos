@@ -55,7 +55,7 @@ func main() {
 
 		meth := reflect.ValueOf(m)
 		_ = meth.Type()       //输出对应的类型及返回值,例如:func(main.Account) string
-		_ = reflect.TypeOf(m) ///输出对应的类型及返回值,例如:func(main.Account) int
+		_ = reflect.TypeOf(m) //输出对应的类型及返回值,例如:func(main.Account) int
 
 		//ac := param.Interface().(*int)
 
