@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	TestB()
+	TestD()
 
 }
 
@@ -152,6 +152,7 @@ func TestD()  {
 
 	go read(intChan, exitChan, exitChan2)
 	go write(intChan, exitChan, exitChan2)
+	time.Sleep(2*time.Second)
 }
 
 func write(intChan chan int, exitChan, exitChan2 chan bool) {
@@ -173,4 +174,6 @@ func read(intChan chan int, exitChan, exitChan2 chan bool) {
 		fmt.Println(i)
 	}
 	exitChan2 <- true
+	<-exitChan
+	fmt.Println("bbbbbbbbbbbbbbb")
 }
