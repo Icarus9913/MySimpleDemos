@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	TestC()
+	TestB()
 
 }
 
@@ -52,18 +52,9 @@ func TestA() {
 	fmt.Println("~~~~final:", index)
 }
 
-//=======================================================
-
 
 //-------------------------TestB---------------------------
 func TestB() {
-	intChan := make(chan int, 5)
-	exitChan := make(chan bool, 1)
-	exitChan2 := make(chan bool, 1)
-
-	go read(intChan, exitChan, exitChan2)
-	go write(intChan, exitChan, exitChan2)
-
 	gohou := Gohou()
 	for {
 		select {
@@ -90,29 +81,6 @@ func LoopAdd(events chan int) {
 		events <- i
 	}
 }
-
-func write(intChan chan int, exitChan, exitChan2 chan bool) {
-	for i := 0; i < 10; i++ {
-		intChan <- i
-	}
-	close(intChan)
-	<-exitChan2
-	fmt.Println("aaaaaaaaaaaaaaaaaa")
-	exitChan <- true
-}
-
-func read(intChan chan int, exitChan, exitChan2 chan bool) {
-	for {
-		i, ok := <-intChan
-		if !ok {
-			break
-		}
-		fmt.Println(i)
-	}
-	exitChan2 <- true
-}
-
-//=========================================================
 
 
 //--------------------------TestC-----------------------------
@@ -157,9 +125,6 @@ func serverHandler(s *Server)  {
 	}
 }
 
-
-
-
 func unBlockRead(ch chan int) (x int, err error) {
 	select {
 	case x = <-ch:
@@ -176,4 +141,36 @@ func unBlockWrite(ch chan int, x int) (err error) {
 	case <-time.After(time.Microsecond):
 		return errors.New("read time out")
 	}
+}
+
+
+//------------------------TestD------------------------
+func TestD()  {
+	intChan := make(chan int, 5)
+	exitChan := make(chan bool, 1)
+	exitChan2 := make(chan bool, 1)
+
+	go read(intChan, exitChan, exitChan2)
+	go write(intChan, exitChan, exitChan2)
+}
+
+func write(intChan chan int, exitChan, exitChan2 chan bool) {
+	for i := 0; i < 10; i++ {
+		intChan <- i
+	}
+	close(intChan)
+	<-exitChan2
+	fmt.Println("aaaaaaaaaaaaaaaaaa")
+	exitChan <- true
+}
+
+func read(intChan chan int, exitChan, exitChan2 chan bool) {
+	for {
+		i, ok := <-intChan
+		if !ok {
+			break
+		}
+		fmt.Println(i)
+	}
+	exitChan2 <- true
 }
