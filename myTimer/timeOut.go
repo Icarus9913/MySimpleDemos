@@ -58,6 +58,9 @@ func requestWork(ctx context.Context, job interface{}) error {
 		此处done加缓冲,则可以避免goroutine的泄漏,当没有缓冲的时候,由于上下文的超时已经发生,则这个requestWork已经return了
 		而hardWork那个协程却还在一直堵着,当主线程结束时,他还在堵着,此时的goroutine就泄漏了.
 		所以加上缓冲时 done <- hardWork(job)不管在是否超时都能写入而不卡住goroutine.
+		对于：这时写入一个已经没goroutine接收的channel会不会有问题。
+			--》在go里面channel不像我们常见的文件描述符一样，不是必须关闭的，只是个对象而已，
+				close(channel)只是用来告诉接收者没有东西要写了，没有其它用途
 	*/
 	done := make(chan error,1)
 	panicChan := make(chan interface{},1)
