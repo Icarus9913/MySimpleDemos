@@ -101,6 +101,16 @@ func payloadHandler() {
 	JobQueue <- work
 }
 
+
+/*
+	执行流程：
+	1.定义一个全局任务队列，无缓冲
+	2.创建一个带有100个缓冲的chan chan Job变量pool
+	3.创建100个worker，但这100个worker共用上面的100个pool，
+	  当pool收到一个空闲的w.JobChannel的时候，dispatch就会塞一个任务进去，
+	  相当于100个wroker中，虽然pool是共用的，但是每个worker都有一个w.JobChannel
+	4.注意3中这个二级channel pool变量是如何接收w.JobChannel的，在Start()和dispatch()方法里.
+*/
 func main() {
 	//通过调度器创建worker，监听来自JobQueue的任务
 	d := NewDispatcher(MaxWorker)	//初始化100个缓冲的WorkerPool chan chan Job
