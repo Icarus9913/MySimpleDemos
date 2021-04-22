@@ -2,6 +2,9 @@ package main
 
 import "fmt"
 
+//配合lotus/cmd/lotus/daemon.go中把api先塞给依赖注入初始化,然后再把这个api拿去启动httpServer
+//直接看DaemonCmd的最后
+
 type connection struct{}
 
 type StuffClient interface {
@@ -44,7 +47,7 @@ var defaultStuffClientOptions = stuffClientOptions{
 func newStuffClient(conn connection, opts ...stuffClientOption) StuffClient {
 	options := defaultStuffClientOptions
 	for _, o := range opts {
-		o(&options)
+		o(&options)		//这里就是func(o *stuffClientOptions)函数的执行
 	}
 	return &stuffClient{
 		conn:    conn,
@@ -58,7 +61,7 @@ func main() {
 	fmt.Println(x) //prints &{{} 1 2}
 	x = newStuffClient(
 		connection{},
-		withRetries(3),
+		withRetries(3),	//记住这里表示已经执行了,它等同于func(o *stuffClientOptions)
 	)
 	fmt.Println(x) //prints &{{} 3 2}
 	x = newStuffClient(
