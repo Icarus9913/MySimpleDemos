@@ -21,7 +21,7 @@ func main() {
 
 	// 这里构造函数构造出来的变量不需要明显的进行定义，会自动传给invoke函数
 
-	// 比如nothingUserInvoke 这里没有任何传入参数，则在它之前不执行任何构造函数
+	// 比如invokeNothingUse 这里没有任何传入参数，则在它之前不执行任何构造函数
 	//
 	// Register执行时，需要mux *http.ServeMux, h http.Handler, logger *log.Logger 三个传入参数，则执行对应的三个构造函数
 	// 但是在执行 NewHandler构造函数时，需要logger，则在其之前执行NewLogger
