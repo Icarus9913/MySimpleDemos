@@ -1,4 +1,6 @@
-> 启动rabbitmq: service rabbitmq-server start  
+> 启动rabbitmq: sudo service rabbitmq-server start  
+> 关闭rabbitmq: sudo service rabbitmq-server start  
+> 查看rabbitmq: sudo service rabbitmq-server status  
 > 如果要检查队列，请尝试使用sudo rabbitmqctl list_queues命令。  
 > rabbitmq的标准端口号是5672,,,web管理工具是localhost:15672
 
