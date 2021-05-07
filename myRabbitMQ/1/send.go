@@ -23,6 +23,9 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
+	args := make(amqp.Table)
+	args["x-max-length"] = 1000
+
 	// 3. 声明消息要发送到的队列
 	q, err := ch.QueueDeclare(
 		"hello", // name
@@ -30,7 +33,7 @@ func main() {
 		false,   // delete when unused
 		false,   // exclusive
 		false,   // no-wait
-		nil,     // arguments
+		args,     // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
