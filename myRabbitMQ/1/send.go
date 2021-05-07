@@ -23,6 +23,7 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
+	//定义队列的长度
 	args := make(amqp.Table)
 	args["x-max-length"] = 1000
 
