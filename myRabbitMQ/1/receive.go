@@ -21,6 +21,10 @@ func main() {
 	}
 	defer ch.Close()
 
+	//定义队列的长度
+	args := make(amqp.Table)
+	args["x-max-length"] = 1000
+
 	// 声明队列
 	q, err := ch.QueueDeclare(
 		"hello", // name
@@ -28,7 +32,7 @@ func main() {
 		false,   // delete when unused
 		false,   // exclusive
 		false,   // no-wait
-		nil,     // arguments
+		args,     // arguments
 	)
 	if nil!=err{
 		panic("Failed to declare a queue: "+err.Error())
