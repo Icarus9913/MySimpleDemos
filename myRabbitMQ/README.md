@@ -56,7 +56,7 @@ amqp：一种消息中间件协议，RMQ是amqp协议的一个具体实现。RMQ
 - durable:是否持久化. 持久化会把交换器配置存盘  
 - autoDelete:至少有一条绑定才可以触发自动删除,当所有绑定与之解绑后,会自动删除此交换器  
 - internal:客户端无法直接发送msg到内部交换器,只有交换器可以发送msg到内部交换器  
-- noWait:阻塞：表示创建交换器的请求发送后，阻塞等待RMQ Server返回信息。非阻塞：不会阻塞等待RMQ Server的返回信息，而RMQ Server也不会返回信息.  
+- noWait:阻塞：表示创建交换器的请求发送后，阻塞等待RMQ Server返回信息。非阻塞：不会阻塞等待RMQ Server的返回信息，而RMQ Server也不会返回信息.(返回服务器Exchange.Declare-Ok这个命令)  
 - args: argsTable,是个map,配置一些参数信息  
 
 <br/>  
@@ -69,7 +69,8 @@ amqp：一种消息中间件协议，RMQ是amqp协议的一个具体实现。RMQ
 - autoDelete:至少有一个消费者连接到队列时才可以触发。当所有消费者都断开时，队列会自动删除。
 - exclusive:是否设置排他，true为是。如果设置为排他，则队列仅对首次声明他的连接可见，并在连接断开时自动删除。（注意，这里说的是连接不是信道，相同连接不同信道是可见的）  
 - noWait:阻塞：表示创建交换器的请求发送后，阻塞等待RMQ Server返回信息。非阻塞：不会阻塞等待RMQ Server的返回信息，而RMQ Server也不会返回信息。（不推荐使用）
-- args:argsTable,是个map,配置一些参数信息
+- args:argsTable,是个map,配置一些参数信息.如 x-message-ttl, x-expires, x-max-length, x-max-length-bytes, x-dead-letter-exchange, x-dead-letter-routing-key, x-max-priority等.  
+注意:生产者和消费者都能够使用queueDeclare来声明一个队列,但是如果消费者在同一个信道上订阅了另一个队列,就无法再声明队列了.必须先取消订阅,然后将信道置为"传输"模式,之后才能声明队列.
 
 <br/>  
 
@@ -86,7 +87,7 @@ amqp：一种消息中间件协议，RMQ是amqp协议的一个具体实现。RMQ
 
 ### 交换器绑定
 > func (ch *Channel) ExchangeBind(destination, key, source string, noWait bool, args Table) error  
-> 源交换器根据路由键&绑定键把msg转发到目的交换器。
+> 交换器与交换器绑定。
 
 - destination：目的交换器，通常是内部交换器。
 - key：对应图中BandingKey，表示要绑定的键。
@@ -143,8 +144,9 @@ type Publishing struct {
 <br/>  
 
 ### 接受消息-拉模式
-> func (ch *Channel) Get(queue string, autoAck bool) (msg Delivery, ok bool, err error)
-> 消费者主动从RMQ Server拉消息
+> func (ch *Channel) Get(queue string, autoAck bool) (msg Delivery, ok bool, err error)  
+> 消费者主动从RMQ Server拉消息  
+> 如果只想从队列获得单条消息而不是持续订阅,就用Get拉模式
 
 - queue：队列名称
 - autoAck：是否开启自动回复。
@@ -167,17 +169,31 @@ func (d Delivery) Reject(requeue bool) error
 拒绝本条消息。如果requeue为true，则RMQ会把这条消息重新加入队列，如果requeue为false，则RMQ会丢弃本条消息。
 注：推荐手动回复，尽量不要使用autoACK，因autoACK不可控。
 
-
 <br/>
 
 ### Publish – mandatory参数
-- false：当消息无法通过交换器匹配到队列时，会丢弃消息。
+- false：当消息无法通过交换器匹配到队列时，会丢弃消息.
 - true：当消息无法通过交换器匹配到队列时，会调用basic.return通知生产者。注：不建议使用，因会使程序逻辑变得复杂，可以通过备用交换机来实现类似的功能。
 
 ### Publish – immediate参数
 - true：当消息到达Queue后，发现队列上无消费者时，通过basic.Return返回给生产者。
 - false：消息一直缓存在队列中，等待生产者。注：不建议使用此参数，遇到这种情况，可用TTL和DLX方法代替（后面会介绍）。
 
+总结: mandatory参数告诉服务器至少将该消息路由到一个队列中,否则将消息返回给生产者. immediate参数告诉服务器,如果该消息关联的队列上有消费者,则立刻投递;如果所有匹配的队列上都没有消费者,则直接将消息返还给生产者,不用将消息存入队列而等待消费者了;(RabbitMQ 3.0版本开始去掉了对immediate参数的支持,对此RabbitMQ官方解释是:immediate参数会影响镜像队列的性能,增加了代码复杂性,建议采用TTL和DLX的方法替代.)
+
+### 备份交换器
+Alternate Exchange,简称AE.生产者在发送消息的时候如果不设置mandatory参数,那么消息在未被路由的情况下将会丢失;使用备份交换器可以将未被路由的消息存储在RabbitMQ中,在需要的时候去处理这些消息.在声明交换器的时候添加alternate-exchange参数即可. 
+```java
+Map<String, Object> args = new HashMap<String, Object>(); 
+args.put("alternate-exchange","myAe");
+channel.exchangeDeclare("normalExchange","direct",true,false,args);
+channel.exchangeDeclare("myAe","fanout",true,false,null);
+channel.queueDeclare("normalQueue",true,false,false,null);
+channel.queueBind("normalQueue","normalExchange","normalKey");
+channel.queueDeclare("unroutedQueue",true,false,false,null);
+channel.queueBind("unroutedQueue","myAe","");
+```
+上面的代码中声明了两个交换器normalExchange和myAe,分别绑定了normalQueue和unroutedQueue这两个队列,同时将myAe设置为normalExchange的备份交换器.注意myAe的交换器类型为fanout.
 
 <br/>
 
@@ -195,6 +211,31 @@ func (d Delivery) Reject(requeue bool) error
 “x-message-ttl”:0 //msg超时时间，单位毫秒  
 “x-dead-letter-exchange”:”dlxExchange” //DlxEx名称  
 “x-dead-letter-routing-key”:”dlxQueue” //DlxEx路由键  
+
+消息的TTL:  
+如果不设置TTL,则表示此消息不会过期;如果将TTL设置为0,则表示除非此时可以直接将消息投递到消费者,否则该消息会被立即丢弃,这个特性可以部分替代RabbitMQ 3.0版本之前的immediate参数,因为immediate参数在投递失败时会用Basic.Return将消息返回(该功能可以用死信队列来实现)  
+队列的TTL:  
+可通过args中的x-expires参数可以控制队列被自动删除前处于未使用状态的时间.未使用的意思是队列上没有任何的消费者,队列也没有被重新声明,并且在过期时间段内也未调用过Basic.Get命令.RabbitMQ会确保在过期时间到达后将队列删除,但是不保障删除的动作有多及时.在RabbitMQ重启后,持久化的队列的过期时间会被重新计算.  
+注意,该参数不能设置为0,参数以毫秒为单位,比如1000表示该队列如果在1秒钟之内未使用则会被删除.
+```shell
+args["x-expires"] = 1000
+```
+
+<br/>
+
+### 死信队列
+
+DLX全称为Dead-Letter-Exchange,可以称为死信交换器,当消息在一个队列中变成死信(dead message)之后,它能被重新发送到另一个交换器中,这个交换器就是DLX,绑定DLX的队列就被称为死信队列.  
+消息变成死信一般是由于以下几种情况:  
+1.消息被拒绝(Basic.Reject/Basic.Nack),并且设置requeue参数为false;  
+2.消息过期  
+3.队列达到最大长度  
+可以在声明队列的时候可通过参数x-dead-letter-exchange来设置死信交换器,记住在定义死信交换器的时候要选择合适的type:如direct,fanout,topic. 其中direct要选择好BindingKey去绑定队列.
+
+
+
+
+
 
 <br/>
 
