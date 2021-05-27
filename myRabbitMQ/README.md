@@ -101,8 +101,8 @@ amqp：一种消息中间件协议，RMQ是amqp协议的一个具体实现。RMQ
 
 - exchange：要发送到的交换机名称，对应图中exchangeName。
 - key：路由键，对应图中RoutingKey。
-- mandatory:
-- immediate: 
+- mandatory: 下面讲
+- immediate: 下面讲
 - msg：要发送的消息，msg对应一个Publishing结构，Publishing结构里面有很多参数，这里只强调几个参数，其他参数暂时列出，但不解释。
 
 ```shell
@@ -267,4 +267,8 @@ global ：是否全局生效，true表示是。全局生效指的是针对当前
 这个时候,当一个channel实例,且一个c没有设置prefetch_count的话,那么自己只有返回ack后才能拿到下一条消息. 另外,如果多个c在同一个q中拿消息出来的话,没有设置Qos的话,那么每个c都会拿到平均的msg数量,会造成有的c执行快了就闲着.有的c执行慢了,还得继续等着再去执行,因为此时每个c都有相同的msg数量.
 - prefetch_count可以设置1个c实例一次性执行多个msg,可不去ack.相当于并行去执行msg. 不然只能ack后再去执行下一条消息,串行. 
 - Qos(prefetchCount设置消费者客户端最大能"保持"的未确认的消息数),一个q对应多个c,其中每个c不会得到平均消息数,哪个c闲,那就那个c执行.
+
+
+
+
 - RabbitMQ只是在消息进入队列时发送消息,会均匀的发送消息,它不考虑消费者未确认消息的数量,只是盲目的向消费者发送信息.为了避免这种情况,可以将预取计数(prefetch_count)设置为1,这告诉RabbitMQ不要一次向一个worker发出多条消息.或者换句话说,在处理并确认一条消息之前,不要向worker发送新消息.相反,它将把它发送给下一个不忙的worker.
