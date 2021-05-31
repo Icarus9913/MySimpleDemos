@@ -17,8 +17,6 @@ import (
 	但仍未有更好的办法解决jobChannel从EntryChannel中拿任务的停止. 因此会造成gorouting的泄漏.
 */
 
-
-
 //定义任务task类型,每一个任务task都可以抽象成一个函数
 type task struct {
 	f func() error
