@@ -12,10 +12,12 @@ import (
 	一个worker中包含有这个pool的实例,为了从这个pool的EntryChannel中拿到数据.
 	另外每个worker中含有自己的jobChannel.
 
-	release操作就是先放入一个nil任务,当判断接收到的任务是nil时候,停止执行下如.
-	再将每个worker置空,接着pool的worker切片置空即可.
-	但仍未有更好的办法解决jobChannel从EntryChannel中拿任务的停止. 因此会造成gorouting的泄漏.
+	release操作就是先close掉通知channel,然后再向每个worker的jobChannel放入一个nil任务,
+	当worker判断接收到的任务是nil时候,停止执行.再将每个worker置空,接着pool的worker切片置空即可.
+	随后gc会将未引用的worker channel变量给清除.
 */
+
+var stopCh chan struct{}
 
 //定义任务task类型,每一个任务task都可以抽象成一个函数
 type task struct {
@@ -77,8 +79,12 @@ func (p *Pool) run() {
 
 func (w *Worker) run() {
 	go func() {
-		for t := range w.pool.EntryChannel {
-			w.JobsChannel <- t
+		for {
+			select {
+			case <-stopCh:
+				return
+			case w.JobsChannel <- (<-w.pool.EntryChannel):
+			}
 		}
 	}()
 
@@ -86,12 +92,12 @@ func (w *Worker) run() {
 		if task.f == nil {
 			break
 		}
-
 		task.Execute()
 	}
 }
 
 func (p *Pool) Release() {
+	close(stopCh)
 	temp := newTask(nil)
 
 	for i := 0; i < len(p.workers); i++ {
@@ -99,9 +105,12 @@ func (p *Pool) Release() {
 		*(p.workers[i]) = Worker{}
 	}
 	p.workers = p.workers[:0]
+	close(p.EntryChannel)
 }
 
 func main() {
+	stopCh = make(chan struct{})
+
 	//创建一个Task
 	t := newTask(func() error {
 		time.Sleep(time.Millisecond * 250)
@@ -115,7 +124,11 @@ func main() {
 	//开启一个协程,不断的向Pool输送打印一条时间taks任务
 	go func() {
 		for {
-			p.EntryChannel <- t
+			select {
+			case <-stopCh:
+				return
+			case p.EntryChannel <- t:
+			}
 		}
 	}()
 
@@ -123,6 +136,8 @@ func main() {
 	time.Sleep(time.Second)
 	p.Release()
 
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 5)
+
+	//判断goroutine是否存在泄漏, 无
 	fmt.Println(runtime.NumGoroutine())
 }
