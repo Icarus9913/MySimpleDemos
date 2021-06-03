@@ -46,3 +46,4 @@ func bury() (fs [2]func()) {
 	}
 	return
 }
+
