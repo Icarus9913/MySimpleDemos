@@ -58,15 +58,33 @@ func e(n int) int {
 */
 
 func f(n int) (r int) {
-	/*	defer func() {
+	defer func() {
 		r += n
 		recover()
-	}()*/
+	}()
 
 	var f func()
-	defer f()
+	defer f()		// 此处压栈的是f()
 
 	f = func() {
+		r += 2
+	}
+
+	return n + 1
+}
+
+func fff(n int) (r int) {
+	defer func() {
+		r += n
+		recover()
+	}()
+
+	var fff func()
+	defer func() {		//此处压栈的是func(), 而里面的fff()最后成了一个指针的引用执行了.
+		fff()
+	}()
+
+	fff = func() {
 		r += 2
 	}
 
