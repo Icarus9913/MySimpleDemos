@@ -34,3 +34,16 @@ func another()  {
 	slice1 = append(slice1,5000,6000,7000,8000,9000,10000)
 	fmt.Println(slice1,len(slice1),cap(slice1))			//[1 2 3 5000 6000 7000 8000 9000 10000] 9 10
 }
+
+/*
+	v刚开始的len是3,cap是5
+	append先扩v的len,并把6这个值赋值给实体len4位置,因此替换了.
+	append控制len!!!!
+*/
+func sth()  {
+	arr := []int{1, 2, 3, 4, 5}
+	v := arr[:3]
+	fmt.Println(v, len(v), cap(v)) // [1 2 3] 3 5
+	v = append(v, 6)
+	fmt.Println(v, len(v), cap(v)) // [1 2 3 6] 4 5
+}
